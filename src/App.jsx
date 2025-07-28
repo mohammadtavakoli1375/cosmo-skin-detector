@@ -36,6 +36,7 @@ const SkinTypeDetector = () => {
   const [adminPassword, setAdminPassword] = useState('');
   const [addedToCartMessage, setAddedToCartMessage] = useState('');
   const [showResultSidebar, setShowResultSidebar] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   
   // Admin credentials (in real app, this should be handled securely)
   const ADMIN_PASSWORD = 'admin123';
@@ -488,6 +489,31 @@ const SkinTypeDetector = () => {
     setSelectedSkinType('all');
   };
 
+  // Carousel Functions
+  const getVisibleCards = () => {
+    const cardsPerView = window.innerWidth >= 1025 ? 4 : window.innerWidth >= 769 ? 3 : 1;
+    return cardsPerView;
+  };
+
+  const nextSlide = () => {
+    const cardsPerView = getVisibleCards();
+    const maxIndex = Math.max(0, filteredProducts.length - cardsPerView);
+    setCarouselIndex(prev => Math.min(prev + 1, maxIndex));
+  };
+
+  const prevSlide = () => {
+    setCarouselIndex(prev => Math.max(prev - 1, 0));
+  };
+
+  const canGoNext = () => {
+    const cardsPerView = getVisibleCards();
+    return carouselIndex < filteredProducts.length - cardsPerView;
+  };
+
+  const canGoPrev = () => {
+    return carouselIndex > 0;
+  };
+
   // Shop Functions
   const showShopPage = () => {
     setShowShop(true);
@@ -765,11 +791,11 @@ const SkinTypeDetector = () => {
     }
   };
 
-  const nextSlide = () => {
+  const nextLandingSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % 3);
   };
 
-  const prevSlide = () => {
+  const prevLandingSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + 3) % 3);
   };
 
@@ -780,7 +806,7 @@ const SkinTypeDetector = () => {
   // Admin Login Page
   if (showAdminLogin) {
     return (
-      <div className="min-h-screen bg-[#FDE4E0] flex items-center justify-center p-4" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
+      <div className="min-h-screen bg-[#FDE4E0] flex items-center justify-center p-4 mobile-optimized" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
         <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-2xl border border-[#F9C6C2]/50 shadow-lg p-8">
           <div className="text-center mb-8">
             <div className="bg-gradient-to-br from-[#F7A8A5] to-[#F38F8B] p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
@@ -848,7 +874,7 @@ const SkinTypeDetector = () => {
   // Order History Page
   if (showOrderHistory) {
     return (
-      <div className="min-h-screen bg-[#FDE4E0]" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
+      <div className="min-h-screen bg-[#FDE4E0] mobile-optimized" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
         {/* Header */}
         <div className="bg-white/90 backdrop-blur-sm border-b border-[#F9C6C2]/50 shadow-sm sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-4 py-4">
@@ -1015,7 +1041,7 @@ const SkinTypeDetector = () => {
   // Checkout Page
   if (showCheckout) {
     return (
-      <div className="min-h-screen bg-[#FDE4E0]" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
+      <div className="min-h-screen bg-[#FDE4E0] mobile-optimized" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
         {/* Header */}
         <div className="bg-white/90 backdrop-blur-sm border-b border-[#F9C6C2]/50 shadow-sm sticky top-0 z-50">
           <div className="max-w-6xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
@@ -1369,7 +1395,7 @@ const SkinTypeDetector = () => {
   // Cart Page
   if (showCart) {
     return (
-      <div className="min-h-screen bg-[#FDE4E0]" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
+      <div className="min-h-screen bg-[#FDE4E0] mobile-optimized" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
         {/* Header */}
         <div className="bg-white/90 backdrop-blur-sm border-b border-[#F9C6C2]/50 shadow-sm sticky top-0 z-50">
           <div className="max-w-4xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
@@ -1637,7 +1663,7 @@ const SkinTypeDetector = () => {
 
   if (showShop) {
     return (
-      <div className="min-h-screen bg-[#FDE4E0]" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
+      <div className="min-h-screen bg-[#FDE4E0] shop-scroll" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
         {/* Header */}
         <div className="bg-white/90 backdrop-blur-sm border-b border-[#F9C6C2]/50 shadow-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-4">
@@ -1682,55 +1708,93 @@ const SkinTypeDetector = () => {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-          {/* Categories Filter */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#F9C6C2]/50 shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
-            <h2 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 text-center">دسته‌بندی محصولات</h2>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all duration-200 flex items-center text-sm sm:text-base ${
-                    selectedCategory === category.id
-                      ? 'bg-gradient-to-l from-[#F38F8B] to-[#F7A8A5] text-white shadow-lg transform scale-105'
-                      : 'bg-[#FDE4E0] hover:bg-[#F9C6C2] text-gray-700 hover:text-gray-800'
-                  }`}
-                >
-                  <span className="text-base sm:text-lg ml-1 sm:ml-2">{category.icon}</span>
-                  <span className="hidden sm:inline">{category.name}</span>
-                  <span className="sm:hidden">{category.name.split(' ')[0]}</span>
-                </button>
-              ))}
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8 shop-container">
+          <div className="shop-content">
+            {/* Categories Filter */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#F9C6C2]/50 shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+              <h2 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 text-center">دسته‌بندی محصولات</h2>
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all duration-200 flex items-center text-sm sm:text-base ${
+                      selectedCategory === category.id
+                        ? 'bg-gradient-to-l from-[#F38F8B] to-[#F7A8A5] text-white shadow-lg transform scale-105'
+                        : 'bg-[#FDE4E0] hover:bg-[#F9C6C2] text-gray-700 hover:text-gray-800'
+                    }`}
+                  >
+                    <span className="text-base sm:text-lg ml-1 sm:ml-2">{category.icon}</span>
+                    <span className="hidden sm:inline">{category.name}</span>
+                    <span className="sm:hidden">{category.name.split(' ')[0]}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Skin Type Filter */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#F9C6C2]/50 shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
-            <h2 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 text-center">نوع پوست</h2>
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {skinTypeFilters.map((skinType) => (
-                <button
-                  key={skinType.id}
-                  onClick={() => setSelectedSkinType(skinType.id)}
-                  className={`px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all duration-200 flex items-center text-sm sm:text-base ${
-                    selectedSkinType === skinType.id
-                      ? 'bg-gradient-to-l from-[#F38F8B] to-[#F7A8A5] text-white shadow-lg transform scale-105'
-                      : 'bg-[#FDE4E0] hover:bg-[#F9C6C2] text-gray-700 hover:text-gray-800'
-                  }`}
-                >
-                  <span className="text-base sm:text-lg ml-1 sm:ml-2">{skinType.icon}</span>
-                  <span className="hidden sm:inline">{skinType.name}</span>
-                  <span className="sm:hidden">{skinType.name.replace('پوست ', '')}</span>
-                </button>
-              ))}
+            {/* Skin Type Filter */}
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#F9C6C2]/50 shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
+              <h2 className="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 text-center">نوع پوست</h2>
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                {skinTypeFilters.map((skinType) => (
+                  <button
+                    key={skinType.id}
+                    onClick={() => setSelectedSkinType(skinType.id)}
+                    className={`px-3 sm:px-6 py-2 sm:py-3 rounded-xl font-medium transition-all duration-200 flex items-center text-sm sm:text-base ${
+                      selectedSkinType === skinType.id
+                        ? 'bg-gradient-to-l from-[#F38F8B] to-[#F7A8A5] text-white shadow-lg transform scale-105'
+                        : 'bg-[#FDE4E0] hover:bg-[#F9C6C2] text-gray-700 hover:text-gray-800'
+                    }`}
+                  >
+                    <span className="text-base sm:text-lg ml-1 sm:ml-2">{skinType.icon}</span>
+                    <span className="hidden sm:inline">{skinType.name}</span>
+                    <span className="sm:hidden">{skinType.name.replace('پوست ', '')}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="bg-white/90 backdrop-blur-sm rounded-2xl border border-[#F9C6C2]/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
+            {/* Products Carousel */}
+            <div className="carousel-container">
+              {/* Navigation Buttons */}
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-800">محصولات</h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={prevSlide}
+                    disabled={!canGoPrev()}
+                    className={`carousel-nav-btn ${
+                      canGoPrev() 
+                        ? 'bg-gradient-to-l from-[#F38F8B] to-[#F7A8A5] text-white hover:shadow-lg' 
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    disabled={!canGoNext()}
+                    className={`carousel-nav-btn ${
+                      canGoNext() 
+                        ? 'bg-gradient-to-l from-[#F38F8B] to-[#F7A8A5] text-white hover:shadow-lg' 
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              
+              {/* Carousel Wrapper */}
+              <div className="carousel-wrapper">
+                <div 
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{
+                    transform: `translateX(${carouselIndex * (100 / getVisibleCards())}%)`
+                  }}
+                >
+                  {filteredProducts.map((product) => (
+                    <div key={product.id} className="carousel-card bg-white/90 backdrop-blur-sm rounded-2xl border border-[#F9C6C2]/50 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden">
                 {/* Product Image */}
                 <div className="bg-gradient-to-br from-[#FDE4E0] to-[#F9C6C2] p-4 sm:p-8 text-center">
                   <div className="text-4xl sm:text-6xl mb-2 sm:mb-4">{product.image}</div>
@@ -1802,7 +1866,9 @@ const SkinTypeDetector = () => {
                 </div>
               </div>
             ))}
-          </div>
+                </div>
+              </div>
+            </div>
 
           {/* Cart Summary */}
           {cart.length > 0 && (
@@ -1867,14 +1933,15 @@ const SkinTypeDetector = () => {
             </div>
           )}
 
-          {/* Empty State */}
-          {filteredProducts.length === 0 && (
-            <div className="text-center py-16">
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">محصولی یافت نشد</h3>
-              <p className="text-gray-600">در این دسته‌بندی محصولی موجود نیست</p>
-            </div>
-          )}
+            {/* Empty State */}
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">محصولی یافت نشد</h3>
+                <p className="text-gray-600">در این دسته‌بندی محصولی موجود نیست</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -1882,7 +1949,7 @@ const SkinTypeDetector = () => {
 
   if (showNameForm) {
     return (
-      <div className="min-h-screen bg-[#FDE4E0] flex items-center justify-center p-4 relative overflow-hidden" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
+      <div className="min-h-screen bg-[#FDE4E0] flex items-center justify-center p-4 relative overflow-hidden mobile-optimized" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 left-10 w-32 h-32 bg-[#F9C6C2] rounded-full blur-3xl"></div>
@@ -2064,14 +2131,14 @@ const SkinTypeDetector = () => {
 
             {/* Navigation Arrows */}
             <button
-              onClick={prevSlide}
+              onClick={prevLandingSlide}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-[#F38F8B] w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-100 hover:scale-110"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
             
             <button
-              onClick={nextSlide}
+              onClick={nextLandingSlide}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-[#F38F8B] w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-100 hover:scale-110"
             >
               <ChevronRight className="w-6 h-6" />
@@ -2105,7 +2172,7 @@ const SkinTypeDetector = () => {
   if (result) {
     const skinTypeInfo = skinTypes[result];
     return (
-      <div className="min-h-screen bg-[#FDE4E0] relative" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
+      <div className="min-h-screen bg-[#FDE4E0] relative mobile-optimized" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
         {/* Main Content */}
         <div className="p-4">
           <div className="max-w-6xl mx-auto">
@@ -2354,7 +2421,7 @@ const SkinTypeDetector = () => {
    const progress = ((currentStep + 1) / questions.length) * 100;
 
    return (
-     <div className="min-h-screen bg-[#FDE4E0] flex items-center justify-center p-4" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
+     <div className="min-h-screen bg-[#FDE4E0] flex items-center justify-center p-4 mobile-optimized" style={{ fontFamily: 'Kalameh, -apple-system, BlinkMacSystemFont, sans-serif' }} dir="rtl">
        <div className="w-full max-w-2xl bg-white/80 backdrop-blur-sm rounded-2xl border border-white/50 shadow-sm overflow-hidden">
          <div className="bg-white/90 p-6 border-b border-gray-100">
            <div className="flex items-center justify-between mb-4">
